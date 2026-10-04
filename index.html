@@ -72,7 +72,7 @@ html.loading #page,html.loading #menu{opacity:0}#menu{transition:opacity .3s eas
 .twig{display:block;width:100%;height:12px;margin:.2rem 0 1.2rem;overflow:visible}
 .twig path{fill:none;stroke:var(--soft);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;opacity:.6;vector-effect:non-scaling-stroke}
 .twig .t2{stroke-width:.8;opacity:.32}
-.row.dragging{opacity:.4}#menu .dt{background:rgba(229,35,58,.2);border-radius:3px}
+.row.dragging{opacity:.4}#menu .dt{background:rgba(229,35,58,.2);border-radius:3px}#menu .row.dt-b{box-shadow:inset 0 2px 0 var(--red)}#menu .row.dt-a{box-shadow:inset 0 -2px 0 var(--red)}
 #pgrip{position:absolute;right:-18px;top:0;bottom:0;width:18px;touch-action:none}
 #pgrip .pgk{position:sticky;top:42vh;display:block;width:6px;height:3.2rem;margin:0 auto;border-radius:3px;background:var(--soft);opacity:.3;transition:opacity .2s,background .2s}
 #pgrip:hover .pgk,#pgrip:focus-visible .pgk,html.rsz #pgrip .pgk{opacity:.95;background:var(--red)}
@@ -138,6 +138,9 @@ html.ro .qf{display:none}
 .pwbox:hover .pwge1{animation:pwga 2s ease-in-out}.pwbox:hover .pwge2{animation:pwgb 2s ease-in-out}
 @keyframes pwga{0%{opacity:0}30%{opacity:.55}100%{opacity:0}}@keyframes pwgb{0%{opacity:0}28%{opacity:.45}100%{opacity:0}}
 @media(prefers-reduced-motion:reduce){.pwbox:hover .pwge,.pwbox:hover .pws{animation:none}}
+#pm{position:fixed;z-index:10000;width:17rem;max-width:92vw;background:var(--paper2);border-radius:4px;padding:.7rem .8rem;box-shadow:0 8px 30px rgba(0,0,0,.6)}#pm[hidden]{display:none}
+#pm input{margin:0 0 .6rem}#pm .pmb{display:flex;gap:1.1rem}#pm .pmb button{background:none;border:0;font:inherit;font-style:italic;color:var(--red);padding:0;text-decoration:underline dotted;text-underline-offset:3px}
+.pwn{margin:0 0 .3rem;font-style:italic;color:var(--soft);font-size:.9em}
 #em{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:9998}
 h1{position:relative}
 h1::after{content:attr(data-t);position:absolute;left:0;right:0;top:0;color:#ffcf8a;text-shadow:0 0 16px #ff6a1a,0 0 4px #ffb347;opacity:0;pointer-events:none}
@@ -211,7 +214,8 @@ a:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset
 <div class="mw"><main id="page"></main><div id="pgrip" role="separator" aria-orientation="vertical" aria-label="Resize page width (double-click to reset)" title="Drag to change the page width. Double-click to reset." tabindex="0"><span class="pgk"></span></div></div>
 </div>
 <div id="vc" hidden role="group" aria-label="Reading controls"><button id="wrst" hidden title="Put the page back to its normal width">↔ Reset width</button></div>
-<div id="sb" hidden><button id="sbl">Link to page</button><button id="sbm">Mark for paperwork</button><button id="sbr" hidden>Remove mark</button></div>
+<div id="sb" hidden><button id="sbl">Link to page</button><button id="sbm">Mark for paperwork</button><button id="sbe" hidden>Edit note</button><button id="sbr" hidden>Remove mark</button></div>
+<div id="pm" hidden><input id="pmn" placeholder="Add a note (optional)" maxlength="140" autocomplete="off" aria-label="Note for whoever fills this in"><div class="pmb"><button id="pmo">Add mark</button><button id="pmc">Cancel</button></div></div>
 <button id="mu" aria-label="Mute sounds" aria-pressed="false" title="Mute sounds"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="w1" d="M16 9.500a4 4 0 0 1 0 5"/><path class="w2" d="M18.500 7a8 8 0 0 1 0 10"/><path class="sl" d="M4 4l16 16"/></svg></button>
 <button id="pn" aria-label="Edit mode" aria-pressed="false" title="Edit mode"><svg viewBox="0 0 24 24"><path d="M4 20l1-4L16.500 4.500a2 2 0 0 1 3 3L8 19z"/><path d="M14 7l3 3"/></svg></button>
 <div id="lp" hidden><input id="lq" placeholder="Link to a page…" aria-label="Link to a page" autocomplete="off"><div id="ll"></div></div>
@@ -268,7 +272,7 @@ var DIAM="M12 1.5Q15.6 8.4 22.5 12Q15.6 15.6 12 22.5Q8.4 15.6 1.5 12Q8.4 8.4 12 
 function ico(g){return "<svg class='ic k-"+g+"'"+(CATS[g].c?" style='color:"+CATS[g].c+"'":"")+" viewBox='0 0 24 24' aria-hidden='true'><path d='"+CATS[g].b+"' fill='currentColor'/>"+CATS[g].g+"</svg>"}
 var NO={};
 function parOf(k){var p=P[k];if(!p||!p.par||p.par===k||!P[p.par]||P[p.par].g!==p.g)return"";var x=p.par,n=0;while(x&&n<30){if(x===k)return"";x=P[x]&&P[x].par;n++}return p.par}
-function kids(k){return ORDER.filter(function(x){return x!=="home"&&parOf(x)===k})}
+function kids(k){return ORDER.filter(function(x){return x!=="home"&&parOf(x)===k}).sort(byOrd)}
 function descendants(k){var o=[];kids(k).forEach(function(c){o.push(c);o=o.concat(descendants(c))});return o}
 function pOpen(k){return NO["p:"+k]!==undefined?NO["p:"+k]:(cur===k||descendants(k).indexOf(cur)>-1)}
 function rowHtml(k,d,tg){var kd=kids(k).length,op=pOpen(k);return"<div class='row' data-id='"+k+"' style='padding-left:"+(d*.9)+"rem'>"+(tg&&kd?"<button class='tg2"+(op?" op":"")+"' data-pk='"+k+"' aria-expanded='"+op+"' aria-label='Toggle sub-pages'>&#9656;</button>":"<span class='sp0'></span>")+"<a class='link"+(k===cur?" on":"")+"' href='#"+k+"'>"+P[k].t+"</a>"+(pwN(k)?"<span class='pwd' title='Marked for paperwork'></span>":"")+"<button class='x' data-d='n' data-k='"+k+"' aria-label='Add a sub-page' title='Add a sub-page'>+</button><button class='x' data-d='p' data-k='"+k+"' aria-label='Delete page'>&times;</button></div>"}
@@ -290,7 +294,7 @@ function build(filter){
   h+="<h4 data-g='"+g+"'><button class='hl' data-g='"+g+"' aria-expanded='"+open+"'>"+ico(g)+CATS[g].n+"</button><button class='tg"+(open?" op":"")+"' data-g='"+g+"' aria-expanded='"+open+"' aria-label='Toggle "+CATS[g].n+"'>&#9656;</button><button class='x' data-d='e' data-k='"+g+"' aria-label='Edit section'><svg viewBox='0 0 24 24' width='13' height='13' aria-hidden='true'><path d='M4 20l1-4L16.500 4.500a2 2 0 0 1 3 3L8 19z'/><path d='M14 7l3 3'/></svg></button><button class='x' data-d='c' data-k='"+g+"' aria-label='Delete section'>&times;</button></h4>";
   if(open){var rows="";
    if(filter){items.forEach(function(k){rows+=rowHtml(k,0,false)})}
-   else{ORDER.filter(function(k){return k!=="home"&&P[k].g===g&&!parOf(k)}).forEach(function(k){rows+=tree(k,0)})}
+   else{ORDER.filter(function(k){return k!=="home"&&P[k].g===g&&!parOf(k)}).sort(byOrd).forEach(function(k){rows+=tree(k,0)})}
    h+="<div class='sl'>"+rows+"</div>";if(!filter)h+="<button class='add' data-g='"+g+"'>+ Add page</button>"}
  });
  if(!filter)h+="<button class='add' id='as'>+ Add section</button>";
@@ -302,7 +306,7 @@ function show(){closeBm();shownHash=location.hash;
  var k=location.hash.slice(1),c=k.indexOf("cat-")===0?k.slice(4):"";
  if(k==="paperwork"){cur=k;editing=false;var pe0=document.getElementById("page");pe0.classList.remove("ishome");pe0.innerHTML=deskHtml();pwRender();document.title="C.M.I. Paperwork \u00b7 The CMIpedia";build(document.getElementById("q").value.trim().toLowerCase());window.scrollTo(0,0);return}
  if(c&&CATS[c]){
-  cur=k;var ul=function(ks){return ks.length?"<ul>"+ks.map(function(x){return"<li><a href='#"+x+"'>"+P[x].t+"</a>"+ul(kids(x))+"</li>"}).join("")+"</ul>":""},l=ul(ORDER.filter(function(x){return x!=="home"&&P[x].g===c&&!parOf(x)}));
+  cur=k;var ul=function(ks){return ks.length?"<ul>"+ks.map(function(x){return"<li><a href='#"+x+"'>"+P[x].t+"</a>"+ul(kids(x))+"</li>"}).join("")+"</ul>":""},l=ul(ORDER.filter(function(x){return x!=="home"&&P[x].g===c&&!parOf(x)}).sort(byOrd));
   document.getElementById("page").innerHTML="<h1>"+ico(c)+CATS[c].n+"</h1>"+twig("cat-"+c)+l+"<p class='bar'><button class='add' data-g='"+c+"'>Add page</button><button class='lnk esec' data-g='"+c+"'>Edit section</button><button class='lnk dsec' data-g='"+c+"'>Delete section</button><span class='d' id='cm'></span></p>";
   document.title=CATS[c].n+" · The CMIpedia";
  }else{
@@ -324,7 +328,7 @@ function clean(h){var d=new DOMParser().parseFromString("<body>"+h,"text/html");
  return d.body.innerHTML}
 function ls(){try{return JSON.parse(localStorage.getItem("gcw-edits")||"{}")}catch(e){return{}}}
 function lsSet(o){try{localStorage.setItem("gcw-edits",JSON.stringify(o))}catch(e){}}
-function put(k,v){if(!P[k]){P[k]={g:v.g};ORDER.push(k)}P[k]=Object.assign({},P[k],{t:txt(v.t),s:cleanSum(v.s),b:clean(v.b),edited:true,custom:!!v.custom||!!P[k].custom,n:v.n||P[k].n,g:(typeof v.g==="string"&&CATS[v.g])?v.g:P[k].g,par:typeof v.par==="string"?(/^[A-Za-z0-9_-]{0,60}$/.test(v.par)?v.par:""):P[k].par,cap:typeof v.cap==='string'?txt(v.cap.slice(0,200)):P[k].cap,info:(v.info&&typeof v.info==='object')?cleanInfo(v.info):P[k].info})}
+function put(k,v){if(!P[k]){P[k]={g:v.g};ORDER.push(k)}P[k]=Object.assign({},P[k],{t:txt(v.t),s:cleanSum(v.s),b:clean(v.b),edited:true,custom:!!v.custom||!!P[k].custom,n:v.n||P[k].n,g:(typeof v.g==="string"&&CATS[v.g])?v.g:P[k].g,par:typeof v.par==="string"?(/^[A-Za-z0-9_-]{0,60}$/.test(v.par)?v.par:""):P[k].par,cap:typeof v.cap==='string'?txt(v.cap.slice(0,200)):P[k].cap,info:(v.info&&typeof v.info==='object')?cleanInfo(v.info):P[k].info,o:typeof v.o==='number'?v.o:P[k].o})}
 function bar(){var e=document.getElementById("bar");if(!e)return;
  var m=msg||(window.__shimErr?"Shared storage problem: "+window.__shimErr:db?"Shared storage connected.":(window.__cfgProblem?window.__cfgProblem+" ":"")+"No shared storage: saves stay on this device only.");if(/device only/.test(m)&&window.__shimErr&&m.indexOf("problem")<0)m+=" Reason: "+window.__shimErr;
  e.innerHTML=editing?"<button id='sv'>Save changes</button><button id='cn'>Cancel</button><span class='d'>"+m+"</span>":"<button id='eb'>Edit this page</button>"+(P[cur].edited&&!P[cur].custom?"<button id='rs'>Restore original</button>":"")+(cur!=="home"?"<button id='ns'>Add sub-page</button><button id='dp'>Delete page</button>":"")+mvSel()+"<span class='d'>"+m+"</span>";msg=""}
@@ -352,7 +356,7 @@ async function save(){if(cur==="home")return;var k=cur,O=ORIG[k]||{t:"Untitled",
  if(!await ask("Enter the password to save changes"))return;
  var v={t:$("ti").textContent.trim()||O.t,s:$("su").textContent.trim()||O.s,b:clean(boHTML()),cap:($("ca")?$("ca").textContent.trim().slice(0,200):"")};
  v.g=P[k].g;if(P[k].custom){v.custom=true;v.n=P[k].n||0}
- v.par=P[k].par||"";if($("ib")){v.info={};IBF.forEach(function(f){v.info[f[0]]=$("ib-"+f[0]).textContent.trim().slice(0,200)})}var sh=await persist(k,v);if(sh===null){note("NOT SAVED: this browser blocked storage. Your text is still on screen, so copy it somewhere safe.");return}put(k,v);msg=sh?"Saved for everyone.":"Saved on this device only.";show()}
+ v.par=P[k].par||"";if(typeof P[k].o==="number")v.o=P[k].o;if($("ib")){v.info={};IBF.forEach(function(f){v.info[f[0]]=$("ib-"+f[0]).textContent.trim().slice(0,200)})}var sh=await persist(k,v);if(sh===null){note("NOT SAVED: this browser blocked storage. Your text is still on screen, so copy it somewhere safe.");return}put(k,v);msg=sh?"Saved for everyone.":"Saved on this device only.";show()}
 async function addPage(g,s){var t=await ask(s&&P[s]?"Add a sub-page to \u201c"+unesc(P[s].t)+"\u201d":"Add a page to "+CATS[g].n,true,false,s?"Sub-page title":"");if(!t)return;
  var k=g.toLowerCase()+"-"+Date.now().toString(36),v={t:t,s:"",b:"<p>Placeholder text.</p><h2>Placeholder heading</h2><p>Placeholder text.</p>",g:g,par:s||"",custom:true,n:Date.now()};
  var sh=await persist(k,v);if(sh===null){note("NOT SAVED: this browser blocked storage.");return}if(s)NO["p:"+s]=true;put(k,v);msg=sh?"Page added for everyone.":"Page added on this device only.";location.hash="#"+k}
@@ -543,7 +547,7 @@ async function addSub(g){var t=await ask("Add a subsection to "+CATS[g].n,true,f
  if(sh===null){msg="Couldn't save the subsection here.";bar();return}
  subAdd(id,v);NO[g]=true;NO["s:"+id]=true;msg=sh?"Subsection added for everyone.":"Subsection added on this device only.";if(location.hash==="#cat-"+g)show();else location.hash="#cat-"+g}
 async function moveSub(k,sid){if(!await ask("Enter the password to move this page")){bar();return}
- var p=P[k],v={t:unesc(p.t),s:unesc(p.s),b:p.b,par:sid,g:p.g,cap:unesc(p.cap||"")};if(p.info){v.info={};IBF.forEach(function(f){v.info[f[0]]=unesc(p.info[f[0]]||"")})}if(p.custom){v.g=p.g;v.custom=true;v.n=p.n||0}
+ var p=P[k],v={t:unesc(p.t),s:unesc(p.s),b:p.b,par:sid,g:p.g,cap:unesc(p.cap||"")};if(typeof p.o==="number")v.o=p.o;if(p.info){v.info={};IBF.forEach(function(f){v.info[f[0]]=unesc(p.info[f[0]]||"")})}if(p.custom){v.g=p.g;v.custom=true;v.n=p.n||0}
  var sh=await persist(k,v);if(sh===null){note("NOT SAVED: this browser blocked storage.");return}put(k,v);msg=sh?"Moved for everyone.":"Moved on this device only.";show()}
 document.addEventListener("change",function(e){if(e.target.id==="mv")moveSub(cur,e.target.value)});
 function sure(label){return new Promise(function(res){var m=$("md");$("mh").textContent=label;$("mt").style.display="none";$("mp").style.display="none";$("mcol").hidden=true;$("me").textContent="";$("mo").textContent="Yes, delete";m.hidden=false;$("mo").focus();
@@ -594,7 +598,7 @@ $("page").addEventListener("paste",function(e){var t=e.target;if(!editing||!t.cl
  var last=bl;for(var i=1;i<ps.length;i++){var nb=makeBlock("p",escH(ps[i]).replace(/\n/g,"<br>"));last.after(nb);last=nb}
  if(last!==bl)focusAt(last.querySelector(".bke"),true)});
 $("page").addEventListener("keydown",function(e){if(editing&&(e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==="b")e.preventDefault()});
-function pageDoc(k){var p=P[k],v={t:unesc(p.t),s:unesc(p.s),b:p.b,par:p.par||"",cap:unesc(p.cap||""),g:p.g};if(p.custom){v.custom=true;v.n=p.n||0}if(p.info){v.info={};IBF.forEach(function(f){v.info[f[0]]=unesc(p.info[f[0]]||"")})}return v}
+function pageDoc(k){var p=P[k],v={t:unesc(p.t),s:unesc(p.s),b:p.b,par:p.par||"",cap:unesc(p.cap||""),g:p.g};if(p.custom){v.custom=true;v.n=p.n||0}if(p.info){v.info={};IBF.forEach(function(f){v.info[f[0]]=unesc(p.info[f[0]]||"")})}if(typeof p.o==="number")v.o=p.o;return v}
 async function movePage(k,par,g){var p=P[k];if(!p||k==="home"||!CATS[g])return;
  if(par&&(par===k||descendants(k).indexOf(par)>-1||!P[par]))return;
  if(p.g===g&&(parOf(k)||"")===(par||""))return;
@@ -606,12 +610,35 @@ async function movePage(k,par,g){var p=P[k];if(!p||k==="home"||!CATS[g])return;
  for(var j=0;j<ids.length;j++){var sh=await persist(ids[j],pageDoc(ids[j]));if(sh===null){old.forEach(function(o){P[o.id].g=o.g;P[o.id].par=o.par});note("NOT SAVED: this browser blocked storage, so nothing was moved.");return}if(!sh)shared=false}
  NO[g]=true;if(par)NO["p:"+par]=true;msg=(ids.length>1?ids.length+" pages":"Page")+" moved"+(shared?" for everyone.":" on this device only.");show()}
 var dragId=null,mEl=$("menu");
-function clearDt(){document.querySelectorAll("#menu .dt").forEach(function(x){x.classList.remove("dt")})}
-function dropAt(e){if(!dragId)return null;var r=e.target.closest&&e.target.closest(".row[data-id]");if(r){var id=r.dataset.id;if(id===dragId||descendants(dragId).indexOf(id)>-1||!P[id])return null;return{el:r,par:id,g:P[id].g}}var h=e.target.closest&&e.target.closest("h4[data-g]");return h?{el:h,par:"",g:h.dataset.g}:null}
+function ordv(k){var o=P[k].o;return typeof o==="number"?o:1e9+ORDER.indexOf(k)}
+function byOrd(a,b){return ordv(a)-ordv(b)}
+function sibsOf(g,par,ex){return ORDER.filter(function(x){return x!=="home"&&P[x]&&P[x].g===g&&(parOf(x)||"")===(par||"")&&x!==ex}).sort(byOrd)}
+async function dropMove(k,t){var p=P[k];if(!p||k==="home")return;var g,par,list;
+ if(t.pos==="sec"){g=t.sec;par="";if(!CATS[g])return;list=sibsOf(g,"",k);list.push(k)}
+ else{var T=P[t.tgt];if(!T)return;g=T.g;
+  if(t.pos==="in"){par=t.tgt;list=sibsOf(g,par,k);list.push(k)}
+  else{par=parOf(t.tgt)||"";list=sibsOf(g,par,k);var i=list.indexOf(t.tgt);if(i<0)return;list.splice(t.pos==="before"?i:i+1,0,k)}}
+ var sub=descendants(k);if(par&&(par===k||sub.indexOf(par)>-1))return;
+ var same=p.g===g&&(parOf(k)||"")===par;
+ if(same&&sibsOf(g,par,null).join("|")===list.join("|"))return;
+ var ops=[];list.forEach(function(id,i){var o=(i+1)*1000;if(P[id].o!==o||(id===k&&!same))ops.push({id:id,o:o,g:g,par:id===k?par:P[id].par})});
+ sub.forEach(function(id){if(P[id].g!==g&&!ops.some(function(x){return x.id===id}))ops.push({id:id,o:P[id].o,g:g,par:P[id].par})});
+ if(!ops.some(function(x){return x.id===k}))ops.push({id:k,o:(list.indexOf(k)+1)*1000,g:g,par:par});
+ var ttl=unesc(p.t),where=t.pos==="sec"?" to "+unesc(CATS[g].n):t.pos==="in"?" under \u201c"+unesc(P[t.tgt].t)+"\u201d":same?"":" to "+unesc(CATS[g].n);
+ if(!await ask("Enter the password to "+(same&&t.pos!=="in"?"reorder":"move")+" \u201c"+ttl+"\u201d"+where))return;
+ var old=ops.map(function(x){return{id:x.id,g:P[x.id].g,par:P[x.id].par,o:P[x.id].o}});
+ ops.forEach(function(x){P[x.id].o=x.o;P[x.id].g=x.g;P[x.id].par=x.par||""});
+ var shared=true;
+ for(var j=0;j<ops.length;j++){var sh=await persist(ops[j].id,pageDoc(ops[j].id));if(sh===null){old.forEach(function(o){P[o.id].g=o.g;P[o.id].par=o.par;if(o.o===undefined)delete P[o.id].o;else P[o.id].o=o.o});note("NOT SAVED: this browser blocked storage, so nothing was moved.");return}if(!sh)shared=false}
+ NO[g]=true;if(par)NO["p:"+par]=true;msg=(same&&t.pos!=="in"?"Order saved":"Moved")+(shared?" for everyone.":" on this device only.");show()}
+function clearDt(){document.querySelectorAll("#menu .dt,#menu .dt-b,#menu .dt-a").forEach(function(x){x.classList.remove("dt","dt-b","dt-a")})}
+function dropAt(e){if(!dragId)return null;var r=e.target.closest&&e.target.closest(".row[data-id]");
+ if(r){var id=r.dataset.id;if(id===dragId||descendants(dragId).indexOf(id)>-1||!P[id])return null;var b=r.getBoundingClientRect(),y=(e.clientY-b.top)/b.height;return{el:r,tgt:id,pos:y<.28?"before":y>.72?"after":"in"}}
+ var h=e.target.closest&&e.target.closest("h4[data-g]");return h?{el:h,sec:h.dataset.g,pos:"sec"}:null}
 mEl.addEventListener("dragstart",function(e){var r=e.target.closest&&e.target.closest(".row[data-id]");if(!r||!document.documentElement.classList.contains("editing")){e.preventDefault();return}dragId=r.dataset.id;e.dataTransfer.setData("text/plain",dragId);e.dataTransfer.effectAllowed="move";r.classList.add("dragging")});
-mEl.addEventListener("dragover",function(e){clearDt();var t=dropAt(e);if(!t)return;e.preventDefault();e.dataTransfer.dropEffect="move";t.el.classList.add("dt")});
+mEl.addEventListener("dragover",function(e){clearDt();var t=dropAt(e);if(!t)return;e.preventDefault();e.dataTransfer.dropEffect="move";t.el.classList.add(t.pos==="before"?"dt-b":t.pos==="after"?"dt-a":"dt")});
 mEl.addEventListener("dragleave",function(e){if(!mEl.contains(e.relatedTarget))clearDt()});
-mEl.addEventListener("drop",function(e){var t=dropAt(e);e.preventDefault();clearDt();var id=dragId;dragId=null;if(t&&id)movePage(id,t.par,t.g)});
+mEl.addEventListener("drop",function(e){var t=dropAt(e);e.preventDefault();clearDt();var id=dragId;dragId=null;if(t&&id)dropMove(id,t)});
 mEl.addEventListener("dragend",function(){dragId=null;clearDt();document.querySelectorAll("#menu .dragging").forEach(function(x){x.classList.remove("dragging")})});
 (function(){var g=$("pgrip"),root=document.documentElement,KEY="gcw-pw",MIN=480,DEF=608,cur=DEF;
 function clamp(v){var nv=document.querySelector("nav"),nw=nv?nv.getBoundingClientRect().width:288,mx=Math.max(MIN,Math.min(1000,innerWidth-(nw+142)));return Math.max(MIN,Math.min(mx,v))}
@@ -626,11 +653,11 @@ function resetW(){cur=DEF;apply();try{localStorage.removeItem(KEY)}catch(e){}}
 g.addEventListener("dblclick",resetW);$("wrst").addEventListener("click",resetW);
 g.addEventListener("keydown",function(e){var d=e.key==="ArrowRight"?48:e.key==="ArrowLeft"?-48:0;if(!d)return;e.preventDefault();cur=clamp(clamp(cur)+d);apply();try{localStorage.setItem(KEY,String(Math.round(cur)))}catch(x){}})})();
 try{localStorage.removeItem("gcw-ts")}catch(e){}
-(function(){var sb=$("sb"),tk=0;
-function upd(){tk=0;var s=getSelection();if(!editing||!$("lp").hidden||!s.rangeCount||!inEd(s)){sb.hidden=true;return}
+(function(){var sb=$("sb"),tk=0,pm=$("pm"),mode="new",host=null,rng=null,target=null;
+function upd(){tk=0;var s=getSelection();if(!editing||!$("lp").hidden||!pm.hidden||!s.rangeCount||!inEd(s)){sb.hidden=true;return}
  var mk=mkOf(s.anchorNode),r;
- if(s.isCollapsed){if(!mk){sb.hidden=true;return}$("sbl").hidden=true;$("sbm").hidden=true;$("sbr").hidden=false;r=mk.getBoundingClientRect()}
- else{$("sbl").hidden=false;$("sbm").hidden=!!mk;$("sbr").hidden=!mk;r=s.getRangeAt(0).getBoundingClientRect()}
+ if(s.isCollapsed){if(!mk){sb.hidden=true;return}$("sbl").hidden=true;$("sbm").hidden=true;$("sbe").hidden=false;$("sbr").hidden=false;r=mk.getBoundingClientRect()}
+ else{$("sbl").hidden=false;$("sbm").hidden=!!mk;$("sbe").hidden=!mk;$("sbr").hidden=!mk;r=s.getRangeAt(0).getBoundingClientRect()}
  if(!r.width&&!r.height){sb.hidden=true;return}
  sb.hidden=false;var w=sb.offsetWidth||120,x=Math.max(8,Math.min(innerWidth-w-8,r.left+r.width/2-w/2)),y=r.top-sb.offsetHeight-8;if(y<8)y=r.bottom+8;sb.style.left=x+"px";sb.style.top=y+"px"}
 document.addEventListener("selectionchange",function(){if(!tk)tk=requestAnimationFrame(upd)});
@@ -638,31 +665,41 @@ window.addEventListener("scroll",function(){if(!sb.hidden)upd()},true);
 sb.addEventListener("mousedown",function(e){e.preventDefault()});
 $("sbl").addEventListener("click",function(){sb.hidden=true;openLp(false)});
 $("sbr").addEventListener("click",function(){var s=getSelection(),mk=mkOf(s.anchorNode);if(mk)unwrapMk(mk);sb.hidden=true});
-$("sbm").addEventListener("click",function(){var s=getSelection();if(!s.rangeCount||s.isCollapsed)return;var rng=s.getRangeAt(0),sc=rng.startContainer,host=(sc.nodeType===3?sc.parentNode:sc).closest("[contenteditable=true]");
+function showPm(r){sb.hidden=true;pm.hidden=false;$("pmo").textContent=mode==="edit"?"Save note":"Add mark";pm.style.left=Math.max(8,Math.min(innerWidth-pm.offsetWidth-8,r.left))+"px";pm.style.top=Math.max(8,Math.min(innerHeight-pm.offsetHeight-8,r.bottom+8))+"px";$("pmn").focus()}
+$("sbm").addEventListener("click",function(){var s=getSelection();if(!s.rangeCount||s.isCollapsed)return;rng=s.getRangeAt(0).cloneRange();var sc=rng.startContainer;host=(sc.nodeType===3?sc.parentNode:sc).closest("[contenteditable=true]");
  if(!host||!host.contains(rng.endContainer)){$("th").textContent="Select words inside one block.";return}
- var frag=rng.extractContents(),m=document.createElement("mark");m.className="pw";m.setAttribute("data-id",rid());m.title="Missing details \u2014 help fill this in";m.appendChild(frag);m.querySelectorAll("mark.pw").forEach(unwrapMk);rng.insertNode(m);sb.hidden=true;host.focus();
- var nr=document.createRange();nr.setStartAfter(m);nr.collapse(true);s.removeAllRanges();s.addRange(nr)})})();
+ mode="new";target=null;$("pmn").value="";showPm(rng.getBoundingClientRect())});
+$("sbe").addEventListener("click",function(){var s=getSelection(),mk=mkOf(s.anchorNode);if(!mk)return;target=mk;host=mk.closest("[contenteditable=true]");mode="edit";$("pmn").value=mk.getAttribute("data-n")||"";showPm(mk.getBoundingClientRect())});
+function setNote(m,note){if(note)m.setAttribute("data-n",note);else m.removeAttribute("data-n");m.title="Missing details \u2014 help fill this in"+(note?": "+note:"")}
+$("pmo").addEventListener("click",function(){var note=$("pmn").value.trim().slice(0,140);pm.hidden=true;
+ if(mode==="edit"){if(target&&target.isConnected)setNote(target,note);if(host&&host.isConnected)host.focus();return}
+ if(!rng||!host||!host.isConnected)return;
+ var frag=rng.extractContents(),m=document.createElement("mark");m.className="pw";m.setAttribute("data-id",rid());m.appendChild(frag);m.querySelectorAll("mark.pw").forEach(unwrapMk);setNote(m,note);rng.insertNode(m);host.focus();
+ var nr=document.createRange();nr.setStartAfter(m);nr.collapse(true);var s=getSelection();s.removeAllRanges();s.addRange(nr)});
+$("pmc").addEventListener("click",function(){pm.hidden=true;if(host&&host.isConnected)host.focus()});
+pm.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();$("pmo").click()}else if(e.key==="Escape"){$("pmc").click()}});
+document.addEventListener("mousedown",function(e){if(!pm.hidden&&!e.target.closest("#pm"))pm.hidden=true})})();
 function rid(){return Math.random().toString(36).slice(2,8)}
 function mkOf(n){var e=n&&(n.nodeType===3?n.parentNode:n);return e&&e.closest?e.closest("mark.pw"):null}
 function unwrapMk(m){var p=m.parentNode;while(m.firstChild)p.insertBefore(m.firstChild,m);p.removeChild(m);p.normalize()}
 function ctxOf(m){var par=m.closest("p,h2,li,blockquote,div")||m.parentNode,r=m.ownerDocument.createRange();r.selectNodeContents(par);r.setEnd(m,0);var st=r.toString().length,full=par.textContent,t=m.textContent;return{b:full.slice(Math.max(0,st-90),st),a:full.slice(st+t.length,st+t.length+90)}}
-function pwScan(k){var p=P[k];if(!p||typeof p.b!=="string"||p.b.indexOf("pw")<0)return[];var doc=new DOMParser().parseFromString("<body>"+p.b,"text/html"),out=[];doc.querySelectorAll("mark.pw").forEach(function(m,i){out.push({k:k,id:m.getAttribute("data-id")||("i"+i),text:m.textContent,ctx:ctxOf(m)})});return out}
+function pwScan(k){var p=P[k];if(!p||typeof p.b!=="string"||p.b.indexOf("pw")<0)return[];var doc=new DOMParser().parseFromString("<body>"+p.b,"text/html"),out=[];doc.querySelectorAll("mark.pw").forEach(function(m,i){out.push({k:k,id:m.getAttribute("data-id")||("i"+i),text:m.textContent,note:m.getAttribute("data-n")||"",ctx:ctxOf(m)})});return out}
 function pwAll(){var o=[];ORDER.forEach(function(k){if(P[k])o=o.concat(pwScan(k))});return o}
 function pwN(k){var b=P[k]&&P[k].b;return typeof b==="string"?(b.match(/<mark[^>]*class="pw"/g)||[]).length:0}
 function pwBadge(){var n=0;ORDER.forEach(function(k){n+=pwN(k)});var b=$("pwc");if(b){b.hidden=!n;b.textContent=n}var a=$("pwb");if(a)a.classList.toggle("on",cur==="paperwork")}
 function pwFlash(){var g=window.__pwGo;if(!g)return;window.__pwGo=null;var m=document.querySelector('#page mark.pw[data-id="'+g.id+'"]');if(m){m.scrollIntoView({block:"center",behavior:"smooth"});m.classList.add("flash");setTimeout(function(){m.classList.remove("flash")},2800)}}
 var PWQ="";
 function deskHtml(){var m=msg;msg="";return"<h1>C.M.I. Paperwork</h1>"+twig("paperwork")+"<p class='pwintro'>Looks like we have a few missing details in C.M.I.\u2019s files. Whenever you have a free moment, help us fill in the blanks.</p>"+(m?"<p class='d' id='pwm'>"+m+"</p>":"")+"<input id='pwq' type='search' placeholder='Search the paperwork\u2026' aria-label='Search the paperwork' value='"+escH(PWQ).replace(/'/g,"&#39;")+"'><div id='pwl'></div>"}
-function pwRender(){var all=pwAll(),q=PWQ.trim().toLowerCase(),sel=all.filter(function(it){return!q||(unesc(P[it.k].t)+" "+it.text+" "+it.ctx.b+" "+it.ctx.a).toLowerCase().indexOf(q)>=0}),h="";
+function pwRender(){var all=pwAll(),q=PWQ.trim().toLowerCase(),sel=all.filter(function(it){return!q||(unesc(P[it.k].t)+" "+it.text+" "+it.note+" "+it.ctx.b+" "+it.ctx.a).toLowerCase().indexOf(q)>=0}),h="";
  if(!all.length)h="<p class='pwempty'>Nothing is missing right now. To mark a gap, turn on the pencil, highlight some words and choose <em>Mark for paperwork</em>.</p>";
  else if(!sel.length)h="<p class='pwempty'>Nothing matches that search.</p>";
  else sel.forEach(function(it){var p=P[it.k];h+="<div class='pwi' data-k='"+it.k+"' data-id='"+it.id+"'><div class='pwh'><a href='#"+it.k+"'>"+p.t+"</a>"+(CATS[p.g]?"<span class='d'> \u00b7 "+CATS[p.g].n+"</span>":"")+"</div>"
-  +"<p class='pwc'>\u2026"+escH(it.ctx.b)+"<mark class='pw'>"+escH(it.text)+"</mark>"+escH(it.ctx.a)+"\u2026</p>"
+  +"<p class='pwc'>\u2026"+escH(it.ctx.b)+"<mark class='pw'>"+escH(it.text)+"</mark>"+escH(it.ctx.a)+"\u2026</p>"+(it.note?"<p class=\'pwn\'>\u201c"+escH(it.note)+"\u201d</p>":"")
   +"<div class='pwa'><button data-pa='go'>Go to it</button>"+(it.k!=="home"?"<button data-pa='fill' class='qf'>Quick fill</button>":"")+"</div></div>"});
  $("pwl").innerHTML=h}
 function pwGo(k,id){window.__pwGo={k:k,id:id};if(location.hash==="#"+k){pwFlash()}else location.hash="#"+k}
 async function qfill(k,id){var p=P[k];if(!p||k==="home"||typeof p.b!=="string")return;var it=pwScan(k).filter(function(x){return x.id===id})[0];if(!it)return;
- var lab="Fill in: \u201c\u2026"+it.ctx.b.slice(-70)+"["+it.text+"]"+it.ctx.a.slice(0,70)+"\u2026\u201d";
+ var lab="Fill in: \u201c\u2026"+it.ctx.b.slice(-70)+"["+it.text+"]"+it.ctx.a.slice(0,70)+"\u2026\u201d"+(it.note?"   Note: "+it.note:"");
  var t=await ask(lab,true,false,"Type what you know\u2026");if(!t)return;
  var doc=new DOMParser().parseFromString("<body>"+p.b,"text/html"),m=doc.querySelector('mark.pw[data-id="'+id+'"]');if(!m)return;m.replaceWith(doc.createTextNode(t));
  var old=p.b;p.b=clean(doc.body.innerHTML);var sh=await persist(k,pageDoc(k));
